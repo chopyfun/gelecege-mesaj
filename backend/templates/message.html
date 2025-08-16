@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mesaj Gönder</title>
+</head>
+<body>
+  <h1>📨 Geleceğe Mesaj Gönder</h1>
+
+  <form method="post">
+    <label>Mesajın:</label><br>
+    <textarea name="message" required></textarea><br><br>
+
+    <label>Ne zaman gönderilsin?</label><br>
+    <input type="date" name="delivery_date" required><br><br>
+
+    <button type="submit">Gönder</button>
+  </form>
+
+  <p><a href="{{ url_for('logout') }}">Çıkış yap</a></p>
+</body>
+</html>

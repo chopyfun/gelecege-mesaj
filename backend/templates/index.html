@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Geleceğe Mesaj ✨</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: black;
+      color: #ff66cc;
+      text-align: center;
+      overflow: hidden;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-top: 80px;
+      color: #ff99ff;
+      text-shadow: 0 0 8px #ff00ff, 0 0 20px #ff33cc;
+    }
+
+    p {
+      font-size: 14px;
+      color: #ccccff;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      margin: 10px;
+      color: black;
+      background: #ff66ff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 0 10px #ff33cc;
+      transition: 0.2s;
+    }
+    .btn:hover {
+      background: #ff33cc;
+      box-shadow: 0 0 20px #ff66ff;
+    }
+
+    /* --- Kayan yazılar --- */
+    .floating-text {
+      position: absolute;
+      font-size: 14px;
+      white-space: nowrap;
+      text-shadow: 0 0 5px, 0 0 15px;
+    }
+
+    /* 1. yazı - soldan sağa */
+    .floating-text.one {
+      top: 25%;
+      left: -200px;
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff, 0 0 15px #00ccff;
+      animation: float-right 12s linear infinite;
+    }
+
+    /* 2. yazı - sağdan sola */
+    .floating-text.two {
+      top: 50%;
+      right: -300px;
+      color: #ff66ff;
+      text-shadow: 0 0 5px #ff66ff, 0 0 15px #cc00cc;
+      animation: float-left 16s linear infinite;
+    }
+
+    /* 3. yazı - soldan sağa */
+    .floating-text.three {
+      top: 75%;
+      left: -250px;
+      color: #ffff66;
+      text-shadow: 0 0 5px #ffff66, 0 0 15px #ffcc00;
+      animation: float-right 20s linear infinite;
+    }
+
+    /* Animasyonlar */
+    @keyframes float-right {
+      0%   { transform: translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateX(120vw); opacity: 0; }
+    }
+
+    @keyframes float-left {
+      0%   { transform: translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateX(-120vw); opacity: 0; }
+    }
+
+    /* --- Yanıp sönen yazılar --- */
+    .blinking {
+      font-size: 16px;
+      color: #ffcc00;
+      text-shadow: 0 0 5px #ffaa00, 0 0 15px #ff6600;
+      animation: blink 1.2s infinite;
+      margin-top: 20px;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
+    }
+
+  </style>
+</head>
+<body>
+  <h1>🌌 Geleceğe Mesaj!</h1>
+  <p>“Mesajını geleceğe bırak, zamanı geldiğinde seni bulsun.”</p>
+
+  <a href="{{ url_for('login') }}" class="btn">🔑 Giriş Yap</a>
+  <a href="{{ url_for('register') }}" class="btn">📝 Üye Ol</a>
+
+  <!-- Yanıp sönen alt yazı -->
+  <div class="blinking">✨ Retro ruhunu hisset, geleceğe mesajını bırak!</div>
+
+  <!-- Kayan yazılar -->
+  <div class="floating-text one">📩 Geleceğe mesaj gönder</div>
+  <div class="floating-text two">💌 Bir mektup arkadaşın olsun</div>
+  <div class="floating-text three">⏳ Zamanı geldiğinde seni bulacak!</div>
+</body>
+</html>

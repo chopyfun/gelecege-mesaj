@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Giriş Yap 🔑</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: black;
+      color: #ff66cc;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      background: rgba(0, 0, 0, 0.8);
+      border: 3px solid #ff33cc;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #ff33cc, 0 0 40px #ff66ff;
+      width: 320px;
+    }
+
+    h1 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #ff99ff;
+      text-shadow: 0 0 8px #ff00ff, 0 0 20px #ff33cc;
+    }
+
+    input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+      background: black;
+      border: 2px solid #00ffff;
+      color: #00ffff;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px #00ccff;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      color: black;
+      background: #ff66ff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #ff33cc;
+      animation: blink-btn 1.2s infinite;
+    }
+    button:hover {
+      background: #ff33cc;
+      box-shadow: 0 0 20px #ff66ff;
+    }
+
+    @keyframes blink-btn {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.6; }
+    }
+
+    a {
+      display: block;
+      margin-top: 20px;
+      font-size: 10px;
+      color: #ffff66;
+      text-decoration: none;
+      text-shadow: 0 0 5px #ffaa00, 0 0 15px #ffcc00;
+    }
+    a:hover {
+      color: #ffcc00;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>🔑 Giriş Yap</h1>
+    <form method="POST">
+      <input type="email" name="email" placeholder="E-posta" required><br>
+      <input type="password" name="password" placeholder="Şifre" required><br>
+      <button type="submit">Giriş</button>
+    </form>
+    <a href="{{ url_for('register') }}">📝 Hesabın yok mu? Üye ol</a>
+  </div>
+</body>
+</html>
