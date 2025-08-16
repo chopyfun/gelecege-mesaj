@@ -1,5 +1,7 @@
 flask
-flask-cors
+flask_sqlalchemy
+flask_mail
+flask_bcrypt
+flask_cors
 gunicorn
 psycopg2-binary
-SQLAlchemy
