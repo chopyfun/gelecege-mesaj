@@ -1,105 +1,130 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+import os
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 CORS(app)
 
-# Basit kullanıcı veritabanı (örnek)
-users = {
-    "admin@test.com": {"password": "1234", "role": "admin"},
-    "normal@test.com": {"password": "1234", "role": "user"}
-}
+# -------------------
+# Database config
+# -------------------
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL").replace("postgres://", "postgresql://")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-# Mesajları burada saklıyoruz (şimdilik RAM üzerinde)
-messages = []
+# -------------------
+# Models
+# -------------------
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
-# ---------------- ROUTES ----------------
 
-# Landing page
-@app.route("/")
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    delivery_date = db.Column(db.DateTime, nullable=False)
+
+
+# -------------------
+# Routes
+# -------------------
+@app.route('/')
 def index():
+    if "user_id" in session:
+        user = User.query.get(session["user_id"])
+        if user.is_admin:
+            return redirect(url_for("admin_panel"))
+        return redirect(url_for("home"))
     return render_template("index.html")
 
-# Register
-@app.route("/register", methods=["GET", "POST"])
+
+@app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
 
-        if email in users:
-            return "❌ Bu kullanıcı zaten var!"
+        # Check if user exists
+        existing = User.query.filter_by(email=email).first()
+        if existing:
+            return "Bu e-posta zaten kayıtlı!"
 
-        users[email] = {"password": password, "role": "user"}
-        return redirect(url_for("login"))
+        user = User(email=email, password=password, is_admin=(email == "admin@test.com"))
+        db.session.add(user)
+        db.session.commit()
+        session["user_id"] = user.id
+        return redirect(url_for("home"))
 
     return render_template("register.html")
 
-# Login
-@app.route("/login", methods=["GET", "POST"])
+
+@app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
 
-        if email in users and users[email]["password"] == password:
-            session["user"] = email
-            session["role"] = users[email]["role"]
-
-            if session["role"] == "admin":
-                return redirect(url_for("admin"))
-            elif session["role"] == "user":
-                return redirect(url_for("home"))
-
-        return "❌ Geçersiz giriş!"
+        user = User.query.filter_by(email=email, password=password).first()
+        if user:
+            session["user_id"] = user.id
+            if user.is_admin:
+                return redirect(url_for("admin_panel"))
+            return redirect(url_for("home"))
+        return "Geçersiz giriş!"
 
     return render_template("login.html")
 
-# Kullanıcı ana sayfası (mesaj gönderme)
-@app.route("/home")
+
+@app.route('/logout')
+def logout():
+    session.pop("user_id", None)
+    return redirect(url_for("index"))
+
+
+@app.route('/home')
 def home():
-    if "user" not in session or session["role"] != "user":
+    if "user_id" not in session:
         return redirect(url_for("login"))
     return render_template("home.html")
 
-# Admin sayfası (mesajları listele)
-@app.route("/admin")
-def admin():
-    if "user" not in session or session["role"] != "admin":
+
+@app.route('/send_message', methods=["POST"])
+def send_message():
+    if "user_id" not in session:
+        return jsonify({"error": "Giriş yapmalısınız!"}), 403
+
+    data = request.json
+    msg = Message(
+        email=data["email"],
+        message=data["message"],
+        delivery_date=datetime.strptime(data["delivery_date"], "%Y-%m-%d %H:%M")
+    )
+    db.session.add(msg)
+    db.session.commit()
+    return jsonify({"status": "success"})
+
+
+@app.route('/admin')
+def admin_panel():
+    if "user_id" not in session:
         return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    if not user.is_admin:
+        return "Yetkiniz yok!"
+
+    messages = Message.query.all()
     return render_template("admin.html", messages=messages)
 
-# Mesaj gönderme API
-@app.route("/send", methods=["POST"])
-def send_message():
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Giriş yapmalısın!"}), 401
-
-    data = request.get_json()
-    email = data.get("email")
-    message = data.get("message")
-    delivery_date = data.get("delivery_date")
-
-    new_message = {
-        "user": session["user"],
-        "email": email,
-        "message": message,
-        "delivery_date": delivery_date
-    }
-    messages.append(new_message)
-
-    print(f"✅ Mesaj kaydedildi: {new_message}")
-    return jsonify({"success": True, "message": "Mesaj kaydedildi!"})
-
-# Logout
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("index"))
-
-# ---------------------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()  # ilk çalıştırmada tabloyu oluşturur
+    app.run(host="0.0.0.0", port=5000)
